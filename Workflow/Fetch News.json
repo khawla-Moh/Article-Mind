@@ -1,0 +1,181 @@
+{
+  "name": "Fetch News",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "fetch-news",
+        "responseMode": "lastNode",
+        "responseData": "allEntries",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -528,
+        -48
+      ],
+      "id": "34810da9-317e-4199-9ff5-17a010d7d48d",
+      "name": "Webhook",
+      "webhookId": "32c1b736-0720-47dc-a407-d1164d8237d1"
+    },
+    {
+      "parameters": {
+        "content": "Fetch News to frontend"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -592,
+        -80
+      ],
+      "id": "c7102f82-fd54-4f3f-a8fd-f1bd1a72981c",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.supabaseUrl }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhncmJubm5mdmh3YXVodGxxeXZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NTM2NDEsImV4cCI6MjA4OTQyOTY0MX0.TcxtabI6r7f7vh13atvfuEFgZlrmvuc0XvJtEjJRjQw"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhncmJubm5mdmh3YXVodGxxeXZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NTM2NDEsImV4cCI6MjA4OTQyOTY0MX0.TcxtabI6r7f7vh13atvfuEFgZlrmvuc0XvJtEjJRjQw"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        16,
+        -48
+      ],
+      "id": "fcb024df-965d-4f97-933b-d4c6ea9a5b66",
+      "name": "HTTP Request",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "content": "Fetch the news from supabase"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -320,
+        -80
+      ],
+      "id": "2b12c529-4e57-47dd-9ad0-6bfee46b41b2",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "support category and time filter",
+        "width": 208
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -48,
+        -80
+      ],
+      "id": "712950d1-fe98-4d49-a589-d2c6f4014aea",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "response to webhook",
+        "width": 208
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        240,
+        -80
+      ],
+      "id": "80de3d0f-7c73-4bd5-9063-2cee4430d787",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "jsCode": "const query = $input.first().json.query || {};\nconst timeFilter = query.timeFilter || 'all';\nconst category = query.category || 'all';\nconst lang = query.lang || 'en';\n\n// Save timeFilter for later use\n$workflow.data = { timeFilter, category, lang };\n\nconst baseUrl = 'https://hgrbnnnfvhwauhtlqyvp.supabase.co/rest/v1/news_articles';\nlet supabaseUrl = `${baseUrl}?select=*`;\n\nif (category !== 'all') {\n  supabaseUrl += `&category=eq.${category}`;\n}\nsupabaseUrl += `&language=eq.${lang}`;\nsupabaseUrl += `&order=published_at.desc&limit=100`;\n\nreturn { supabaseUrl };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -272,
+        -48
+      ],
+      "id": "2e7664cc-866f-4eca-9562-69a03f66f417",
+      "name": "Parse Parameters "
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nconst timeFilter = $workflow.data?.timeFilter || 'all';\nconst categoryFilter = $workflow.data?.category || null;\n\nconst now = new Date();\nlet dateLimit;\n\n// Set time range\nswitch (timeFilter) {\n  case 'hour':\n    dateLimit = new Date(now.getTime() - 60 * 60 * 1000);\n    break;\n  case 'day':\n    dateLimit = new Date(now.getTime() - 24 * 60 * 60 * 1000);\n    break;\n  case 'week':\n    dateLimit = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);\n    break;\n  case 'month':\n    dateLimit = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);\n    break;\n  default:\n    dateLimit = new Date(0); // no limit\n}\n\n// Apply filters\nconst filteredItems = items.filter(item => {\n  const data = item.json;\n\n  // ✅ Category filter (if provided)\n  if (categoryFilter && data.category !== categoryFilter) {\n    return false;\n  }\n\n  // ✅ Time filter\n  if (timeFilter !== 'all') {\n    if (!data.published_at) return true; // keep items without date\n    const publishedDate = new Date(data.published_at);\n    if (publishedDate < dateLimit) return false;\n  }\n\n  return true;\n});\n\n// ✅ IMPORTANT: return items directly (not wrapped)\nreturn filteredItems;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        320,
+        -48
+      ],
+      "id": "b2672f44-2e92-4172-a670-5648d38defeb",
+      "name": "Collector Function"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Parse Parameters ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Collector Function",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Parameters ": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "f11caa2e-87b9-4ef2-8138-dd6f7dd1bf6a",
+  "meta": {
+    "instanceId": "75b0a30c52ee895b1600b3c4e6911103a26e07da86ed60c0ff4a76c089a8432b"
+  },
+  "id": "YWa3Aje3Vvjwwj6E",
+  "tags": []
+}

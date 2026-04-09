@@ -1,0 +1,1428 @@
+{
+  "name": "Generate Article",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "generate-article",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -1712,
+        -48
+      ],
+      "id": "18feccda-ddb7-47be-a2c4-f4d2e0f4e93f",
+      "name": "Webhook",
+      "webhookId": "688c4876-0bed-4650-ad47-807b554a1279"
+    },
+    {
+      "parameters": {
+        "content": "Receive  Tittle from FrontEnd                                         ",
+        "width": 516
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1776,
+        -80
+      ],
+      "id": "8bc91381-bf44-41e4-b084-76598830a935",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Generate an article using the following settings:\n\nMode: {{$json.mode}}\nKeyword: {{$json.keyword}}\nCategory: {{$json.category}}\nTone: {{$json.tone}}\nLength: {{$json.length}}\n  Target Language:{{ $json.language }}\n\nIMPORTANT:\n- Follow all instructions strictly\n- Output must be valid JSON only",
+        "hasOutputParser": true,
+        "needsFallback": true,
+        "options": {
+          "systemMessage": "=You are an expert academic and professional writer and researcher. Your task is to generate a **formal article** that is accurate, reliable, and suitable for publication. Follow these instructions:\n\n1. **Accuracy & Sources**  \n- Ensure all information comes from trusted, credible sources (academic journals, books, reputable websites).  \n- Verify facts, statistics, and references for correctness before including them.\n\n2. **Structure**  \n- **Title:** Catchy, precise, and relevant.  \n- **Byline:** Author name.  \n- **Introduction:** 2–3 lines introducing the topic, its importance, and engaging the reader.  \n- **Body Paragraphs:** 2–3 (or more) paragraphs with clear subheadings covering background, causes/effects, analysis, and discussion. Use bullet points, tables, or charts if relevant.  \n- **Conclusion:** Summarize main points and provide a final insight or recommendation.  \n- **References:** Include all sources in a standard citation style (APA, MLA, or Chicago).\n\n3. **Tone & Style**  \n- Formal, professional, and objective. Avoid contractions.  \n- Use precise vocabulary (e.g., “insufficient” instead of “not enough”).  \n- Support all claims with verifiable evidence or statistics.\n\n4. **Formatting & Readability**  \n- Paragraphs should be concise (3–5 sentences).  \n- Use subheadings and bullet points for clarity.  \n- Ensure smooth logical flow and transitions.\n\n5. **Language Support**  \n- Write the article in the language requested by the user.  \n  - If English is requested → full English article.  \n  - If Arabic is requested → full Arabic article.  \n- Provide translations of key terms when necessary.\n6. Article Length:\n- Follow the requested length:\n  - Short: 2–3 paragraphs (~500-700 words)\n  - Medium: 3–4 paragraphs (~700–1000 words)\n  - Long: 5–6 paragraphs (~1200–1500 words)\n- Adjust the depth and examples according to the length.\n**User Input:**  \n- Topic: {{$json.keyword}}  \n- Language: {{ $json.language }}  \n\nProduce a polished, publication-ready article that is accurate, fully reliable, and aligned with the requested language."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        464,
+        -608
+      ],
+      "id": "38a46b73-e20c-44e0-8e3a-caf7c6145c0a",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "content": "AI Generate Formal Article ",
+        "height": 464,
+        "width": 704,
+        "color": "#3B1237"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        224,
+        -656
+      ],
+      "id": "3eead2f9-63c5-4a20-81d7-71dd3a19ef42",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        576,
+        -320
+      ],
+      "id": "d68b275c-c214-4eb8-8f95-0145e40bf860",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "0Lm7Ug4YPt3g9SVu",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        464,
+        -304
+      ],
+      "id": "76e11cd7-34fa-4f5c-9b63-374e21cb2b9f",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "jurehhDFzdy1HyZw",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.kie.ai/api/v1/jobs/createTask",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer 852b487e01fe58b1251d824beaab8630"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "=   {\n  \"model\": \"qwen/text-to-image\",\n  \"callBackUrl\": \"https://your-domain.com/api/callback\",\n  \"input\": {\n    \"prompt\": \"{{ $json.imagePromptEnhanced }}\",\n    \"image_size\": \"square_hd\",\n    \"num_inference_steps\": 30,\n    \"guidance_scale\": 2.5,\n    \"enable_safety_checker\": true,\n    \"output_format\": \"png\",\n    \"negative_prompt\": \"blurry, low quality, distorted, watermark, text, bad anatomy\",\n    \"acceleration\": \"none\"\n  }\n}",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        2656,
+        -80
+      ],
+      "id": "1b4d8246-7bea-4535-a8ab-449505d4137f",
+      "name": "HTTP Request",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"title\": \"\",\n  \"content\": \"\",\n  \n  \"imageSearch\": \"\",\n  \"imagePrompt\": \"\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        704,
+        -336
+      ],
+      "id": "2c72a5ab-ec22-40d0-b005-37598de23e53",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Improve and optimize this image prompt:\n\n{{$json.imagePrompt}}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=You are an expert in writing prompts for text-to-image models like Stable Diffusion.\n\nYour task is to convert the input into a high-quality image generation prompt.\n\nRULES:\n- Output MUST be a single line\n- Use comma-separated descriptive keywords\n- Include:\n  subject, environment, details, lighting, mood\n- Keep it concise and visual\n- Avoid full long sentences\n- No repetition\n- No explanations\n- No JSON\n- No quotes\n\nSTYLE:\nAdd quality tags at the end:\nmasterpiece, best quality, high detail, realistic\n\nIMPORTANT:\nThe output must be optimized for diffusion-based image models."
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        1488,
+        -80
+      ],
+      "id": "881de987-3502-469d-abca-a3e0e692c5b2",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-120b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        1504,
+        96
+      ],
+      "id": "3693f7a6-babf-43c6-875c-27c24bec581c",
+      "name": "Groq Chat Model1",
+      "credentials": {
+        "groqApi": {
+          "id": "jurehhDFzdy1HyZw",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 7
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2896,
+        -80
+      ],
+      "id": "3a901857-43da-40c0-b767-86994ad58d3f",
+      "name": "Wait",
+      "webhookId": "483823cf-8eef-4d52-b287-88e0cd915477",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        3568,
+        -608
+      ],
+      "id": "b6156744-d14b-4fed-a03d-01eca820e2ae",
+      "name": "Merge",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "content": "Merge article with Image",
+        "width": 980,
+        "color": "#433838"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        3488,
+        -640
+      ],
+      "id": "725df9d5-0570-458b-a317-9710c44ba3db",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "url": "https://api.kie.ai/api/v1/jobs/recordInfo",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "taskId",
+              "value": "={{ $json.data.taskId }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer 852b487e01fe58b1251d824beaab8630"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        3216,
+        -80
+      ],
+      "id": "6eb4bfa7-af06-42e6-b2b7-6804a8be03d9",
+      "name": "HTTP Request1",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get full input safely\nconst item = $input.first().json;\n\n// Try all possible fields\nlet raw =\n  item.output ||\n  item.text ||\n  item.data ||\n  item;\n\n// If it's a string → parse it\nlet parsed;\n\ntry {\n  parsed = typeof raw === 'string' ? JSON.parse(raw) : raw;\n} catch (e) {\n  return [{\n    json: {\n      success: false,\n      error: \"Failed to parse AI output\",\n      rawOutput: raw\n    }\n  }];\n}\n\n// Return clean structured data\nreturn [{\n  json: {\n    title: parsed.title || \"\",\n    content: parsed.content || \"\",\n    imagePrompt: parsed.imagePrompt || \"\",\n    imageSearch: parsed.imageSearch || \"\"\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1296,
+        -80
+      ],
+      "id": "a69e33a8-f0d4-4117-9337-d22bc6eb779d",
+      "name": "Extract INFO"
+    },
+    {
+      "parameters": {
+        "jsCode": "const prompt = $input.first().json.text;\n\nreturn [{\n  json: {\n    ...$json,\n    imagePromptEnhanced: prompt.trim()\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1888,
+        -80
+      ],
+      "id": "f84174bb-6630-49b4-ba71-68c275ce10f0",
+      "name": "Extract Enhance Prompt"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "c116ff1e-1022-4fc9-9ad9-a2928d95d9d5",
+              "leftValue": "={{ $json.data.state }}",
+              "rightValue": "success",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        3472,
+        -80
+      ],
+      "id": "f0a5dea7-6e06-4499-9c04-80a78348093d",
+      "name": "If",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "content": "",
+        "height": 128,
+        "width": 1152,
+        "color": "#311111"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2576,
+        -80
+      ],
+      "id": "78745f9a-7cc2-4723-a645-a9b6f3d6d5a7",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "Extract and Enhance image prompt",
+        "height": 288,
+        "width": 1104,
+        "color": "#574105"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1040,
+        -112
+      ],
+      "id": "dc9f502e-c656-4dfd-83c0-3d2b696fd8b1",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "473983e9-6bee-46ba-88bb-4b1c379e5bf0",
+              "leftValue": "={{ $json.mode }}",
+              "rightValue": "keyword",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -848,
+        -48
+      ],
+      "id": "4ff73314-0d53-4e74-a836-adbed3b7cd57",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=CRITICAL OUTPUT RULE:\n- You MUST return ONLY a valid JSON array\n- Do NOT return text, explanation, or alternative formats\n- Do NOT return objects like { \"text\": \"...\", \"weight\": ... }\n- If output is not in the required JSON format, it is incorrect\n\nREQUIRED OUTPUT:\n\n[\n  {\n    \"mode\": \"{{ $json.mode }}\",\n    \"keyword\": \"{{ $json.category }}\",\n    \"category\": \"{{ $json.category }}\",\n    \"tone\": \"{{ $json.tone }}\",\n    \"length\": \"{{ $json.length }}\",\n    \"language\": \"{{ $json.language }}\"\n  }\n]",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=You are an expert content strategist and keyword specialist.\n\nYour task is to generate one concise, high-quality keyword or short phrase for an article based on the provided category and writing requirements.\n\nStrict Output Rules\nOutput ONLY one keyword or short phrase.\nMaximum length: 3 words; minimum length: 1 word.\nDo NOT generate full sentences, article titles, punctuation, quotes, or explanations.\nThe output MUST be a valid JSON array containing a single object.\nDo NOT return the output as a string or wrap JSON inside quotes.\nCritical Field Rules — FIXED IN ENGLISH\nThe output must include the following fields exactly as shown:\ncategory: \"health\"\ntone: \"casual\"\nlength: \"long\"\nlanguage: \"english\"\nThese fields MUST NEVER be translated, changed, or removed.\nOnly the keyword field may vary, based on the user’s language request.\nKeyword Rules\nIf the user requests Arabic → generate the keyword in Arabic.\nIf the user requests English → generate the keyword in English.\nDo NOT mix languages.\nAdapt subtly to tone or length only inside the keyword, not the other fields.\nThe keyword must be specific, meaningful, and relevant to the category.\nAvoid generic terms like \"Introduction\", \"Guide\", or \"Overview\".                                                    Required JSON Output\n\nYour output MUST exactly match this structure:\n\n[\n  {\n    \"category\": \"{{ $json.category }}\",\n    \"tone\": \"{{ $json.tone }}\",\n    \"length\": \"{{ $json.length }}\",\n    \"language\": \"{{ $json.language }}\",\n    \"keyword\": \"{{ $json.keyword }}\"\n  }\n]\n\nImportant:\n\nReplace <generated keyword here> with the keyword only.\nDo NOT modify the other fields."
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        -976,
+        400
+      ],
+      "id": "38540566-4cad-4199-b00b-747851b9ae86",
+      "name": "Basic LLM Chain1"
+    },
+    {
+      "parameters": {
+        "content": "Check if it By Keywords OR by Category",
+        "width": 496,
+        "color": "#2B504B"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1040,
+        -96
+      ],
+      "id": "c0075c3a-aba8-4e27-935d-4a1706f45fe2",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "model": "allam-2-7b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        -976,
+        560
+      ],
+      "id": "f28362a4-36a5-45e1-b1bd-47b053e20728",
+      "name": "Groq Chat Model2",
+      "credentials": {
+        "groqApi": {
+          "id": "jurehhDFzdy1HyZw",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json || {};\nconst body = input.body || {};\n\n// 🌍 Normalize language → output as \"arabic\" or \"english\"\nlet language = (input.language || body.language || body.lang || \"english\").toLowerCase();\n\nif ([\"ar\", \"arabic\"].includes(language)) {\n  language = \"arabic\";\n} else {\n  language = \"english\";\n}\n\n// 🧠 Detect keyword (from all possible sources)\nconst keyword =\n  input.keyword ||        // already processed (category → keyword)\n  input.text ||           // from LLM node\n  body.keyword ||         // from frontend keyword mode\n  \"\";\n\n// 🧠 Detect category\nconst category =\n  input.category ||\n  body.category ||\n  \"\";\n\n// ✅ Smart mode detection\nlet mode = \"keyword\";\n\nif (!keyword && category) {\n  mode = \"category\";\n}\n\n// Final output\nreturn [{\n  json: {\n    mode,\n    keyword: keyword || category || \"General Topic\",\n    category,\n    tone: input.tone || body.tone || \"formal\",\n    length: input.length || body.length || \"medium\",\n    language\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1392,
+        -48
+      ],
+      "id": "6457e7c1-8764-4bb4-9af0-d913ab7d0cbb",
+      "name": "Validation3"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.tone }}",
+                    "rightValue": "=formal",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "eb5ed3ef-5bcf-48e9-a06c-66c553295291"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Formal"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "78790763-54e4-4ea7-a16a-46724cf73f43",
+                    "leftValue": "={{ $json.tone }}",
+                    "rightValue": "casual",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "casual"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "5b1a3a1a-2527-440e-a7fd-f30c09fa8813",
+                    "leftValue": "={{ $json.tone }}",
+                    "rightValue": "academic",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "academic"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -304,
+        -80
+      ],
+      "id": "c8d82713-52f0-4ab9-a7e2-28dd1f40ab8e",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "content": "Generate keywords for article",
+        "height": 304,
+        "width": 816,
+        "color": "#450D0D"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1168,
+        368
+      ],
+      "id": "cc7381fe-d32d-47a1-bfe7-18f7a6b8ba01",
+      "name": "Sticky Note7"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are not just a writer; you are a 'Narrative & Knowledge Architect' — a coordinated system of specialized roles (Strategist, Executor, Critic, Optimizer) working together to produce the highest-quality story-driven content. Your mission is NOT to write a traditional article. You must transform any topic into a captivating, playful, and engaging story, even for readers who usually dislike reading.\n\nIMPORTANT INPUT BINDING:\n- The content MUST be centered around the provided keyword or category: {{ $json.keyword }}  .\n- The keyword is the core subject and must be clearly reflected in the title, story, and explanation.\n- Do NOT ignore or replace the keyword with a different topic.\n\nAccuracy matters, but narrative flair, curiosity, and entertainment are your top priorities.\n\n=====================\nCore Rules\n=====================\n\n1. Tone & Style\n- Story-driven: Use mystery, humor, whimsy, or suspense. The title should act as the hero of the story, sparking curiosity.\n- Facts must be embedded naturally into the story; avoid dry, list-like paragraphs.\n\n2. Language & Length\n- Language: English or Arabic, based on user request.\n- If Arabic is selected → the entire article must be written fully in Arabic (no mixing with English).\n- If English is selected → the entire article must be written fully in English.\n- Length: Short (~300-700 words), Medium (~700-1000 words), Long (~1000-1500 words). Depth, examples, and narrative richness should scale with the selected length.\n\n=====================\nStory System\n=====================\n\n1. Deconstruct the Topic\nIdentify common, boring explanations and avoid them.\n\n2. Central Metaphor\nCreate one bold, unexpected metaphor that ties the entire story together, directly related to {{ $json.keyword }}.\n\n3. Reader Journey (Four Parts)\n- Hook: A paradox, question, or relatable scenario connected to {{ $json.keyword }}.\n- Story: Introduce a character or real-life scenario illustrating {{ $json.keyword }}.\n- Reveal: Explain {{ $json.keyword }} playfully, clearly, and scientifically, linked to the metaphor.\n- Shift: Show transformation, consequence, or leave a thought-provoking question about {{ $json.keyword }}.\n\n=====================\nCognitive Execution Protocol\n=====================\n\n1. Strategist\nIdentify the most engaging angle and hidden storytelling opportunities around{{ $json.keyword }} .\n\n2. Strategist\nDetermine approach based on tone, audience, and requested length.\n\n3. Executor\nDraft content with vivid storytelling and narrative energy, focused on {{ $json.keyword }}.\n\n4. Critic\nEvaluate for clarity, engagement, factual correctness, and adherence to length.\n\n5. Optimizer\nEnhance metaphors, pacing, suspense, humor, and readability.\n\n6. All Roles\nProduce final polished output that is alive, readable, and compelling.\n\n=====================\nConstraints & Safety Rules\n=====================\n\n- Facts must be correct, but do not let rigid fact lists kill the story.\n- Keep alignment with the selected tone and language.\n- Avoid shallow, boring content.\n- Ensure the keyword remains central throughout the content.\n- If input is weak, enhance creatively; if impossible, explain and suggest alternatives.\n\n=====================\nRequired Output Format (JSON Only)\n=====================\n\n{\n  \"title\": \"Story Title clearly related to {{ $json.keyword }}\",\n  \"content\": \"Full story text centered around {{ $json.keyword }} with narrative flair, engagement, embedded facts, and proper adherence to the requested length and language {{ $json.language }}\",\n  \"imageSearch\": \"Keywords related to {{ $json.keyword }} for image search\",\n  \"imagePrompt\": \"Short, vivid description of an image representing {{ $json.keyword }}\"\n}",
+        "hasOutputParser": true,
+        "needsFallback": true,
+        "options": {
+          "systemMessage": "=You are not just a writer; you are a 'Narrative & Knowledge Architect' — a coordinated system of specialized roles (Strategist, Executor, Critic, Optimizer) working together to produce the highest-quality story-driven content. Your mission is NOT to write a traditional article. You must transform any topic into a captivating, playful, and engaging story, even for readers who usually dislike reading. Accuracy matters, but narrative flair, curiosity, and entertainment are your top priorities.\n\n=====================\nCore Rules\n=====================\n\n1. Tone & Style\n- Story-driven: Use mystery, humor, whimsy, or suspense. The title should act as the hero of the story, sparking curiosity.\n- Facts must be embedded naturally into the story; avoid dry, list-like paragraphs.\n\n2. Language & Length\n- Language: English or Arabic, based on user request.\n- Length: Short (~300 700 words), Medium (~700-1000 words), Long (~1000-1500 words). Depth, examples, and narrative richness should scale with the selected length.\n\n=====================\nStory System\n=====================\n\n1. Deconstruct the Topic\nIdentify common, boring explanations and avoid them.\n\n2. Central Metaphor\nCreate one bold, unexpected metaphor that ties the entire story together.\n\n3. Reader Journey (Four Parts)\n- Hook: A paradox, question, or relatable scenario that sparks curiosity.\n- Story: Introduce a character or real-life scenario illustrating the topic.\n- Reveal: Explain the concept playfully, clearly, and scientifically, linked to the metaphor.\n- Shift: Show transformation, consequence, or leave a thought-provoking question.\n\n=====================\nCognitive Execution Protocol\n=====================\n\n1. Strategist\nIdentify the most engaging angle and hidden storytelling opportunities.\n\n2. Strategist\nDetermine approach based on tone, audience, and requested length.\n\n3. Executor\nDraft content with vivid storytelling and narrative energy.\n\n4. Critic\nEvaluate for clarity, engagement, factual correctness, and adherence to length.\n\n5. Optimizer\nEnhance metaphors, pacing, suspense, humor, and readability.\n\n6. All Roles\nProduce final polished output that is alive, readable, and compelling.\n\n=====================\nConstraints & Safety Rules\n=====================\n\n- Facts must be correct, but do not let rigid fact lists kill the story.\n- Keep alignment with casual, playful tone.\n- Avoid shallow, boring content.\n- If input is weak, enhance creatively; if impossible, explain and suggest alternatives.\n\n=====================\nRequired Output Format (JSON Only)\n=====================\n\n{\n  \"title\": \"Story Title\",\n  \"content\": \"Full story text with narrative flair, engagement, embedded facts, and proper adherence to the requested length\",\n  \"imageSearch\": \"Keywords for image search\",\n  \"imagePrompt\": \"Short, vivid description of the image with key details\"\n}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        448,
+        -64
+      ],
+      "id": "b64c1215-88e3-4095-a3fa-417c27c0f5f2",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "content": "AI Generate Casual  Article  ",
+        "height": 464,
+        "width": 704,
+        "color": "#3B1237"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        208,
+        -112
+      ],
+      "id": "59d75690-687a-4625-92c5-e6d04ee2e00f",
+      "name": "Sticky Note8"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        560,
+        224
+      ],
+      "id": "ed1bf0e4-fad5-49cb-9175-fc12ad37ae75",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "0Lm7Ug4YPt3g9SVu",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        448,
+        240
+      ],
+      "id": "59fb6b74-2aea-4962-9346-2f67a8036f87",
+      "name": "Groq Chat Model3",
+      "credentials": {
+        "groqApi": {
+          "id": "jurehhDFzdy1HyZw",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"title\": \"\",\n  \"content\": \"\",\n  \"imageSearch\": \"\",\n  \"imagePrompt\": \"\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        688,
+        208
+      ],
+      "id": "0c5771c6-d6bc-4ee8-b481-c20c3aebb437",
+      "name": "Structured Output Parser1"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Generate an article using the following settings:\n\n\nKeyword: {{$json.keyword}}\nCategory: {{$json.category}}\nTone: {{$json.tone}}\nLength: {{$json.length}}\nTarget Language:{{ $json.language }}\n\nIMPORTANT:\n- Follow all instructions strictly\n- Output must be valid JSON only",
+        "hasOutputParser": true,
+        "needsFallback": true,
+        "options": {
+          "systemMessage": "=You are not a simple text generator. You are an Idea Architect and Academic Content Strategist. Your mission is to create high-quality, accurate, structured, and engaging articles, in story-driven (engaging), academic (research-based), or formal (professional/business) style, depending on the user’s request. All information must be accurate, reliable, and supported by trusted sources. Support content in English and Arabic, depending on the user’s preference.\n\n**Execution Framework:**\n\n**Step 1:() Define the Topic & Research Question**  \n- Ensure the topic is specific, focused, and researchable.  \n- Break it into key concepts and keywords, including synonyms or related terms.  \n- Formulate a clear research question or hypothesis.  \n- *Example:* “How does remote learning affect student engagement in higher education?”\n\n**Step 2: Conduct a Systematic Literature Search**  \n- Use reliable sources (JSTOR, PubMed, PubMed Central (PMC), Google Scholar, domain-specific databases).  \n- Apply Boolean operators:  \n  - AND → combine concepts  \n  - OR → include synonyms  \n  - NOT → exclude irrelevant terms  \n- Refine searches with quotation marks, filters (peer-reviewed, date, type), and check references of relevant papers.  \n- Adjust keywords iteratively based on results.\n\n**Step 3: Plan the Article Structure**  \n- **Standard academic article structure:**  \n  - **Title:** concise, descriptive, includes keywords  \n  - **Abstract:** 150–250 words summarizing problem, methods, results, and conclusions  \n  - **Introduction:** context, significance, literature overview, research question  \n  - **Methodology:** research design, data sources, procedures, reproducibility  \n  - **Results:** objective findings with tables/figures (no interpretation)  \n  - **Discussion:** interpret results, compare literature, discuss implications & limitations  \n  - **Conclusion:** key findings, future research directions  \n  - **References:** consistent citation style (APA, MLA, Chicago, etc.)\n\n**Step 4: Article Length**  \n- Follow the requested article length:  \n  - **Short:** ~2–3 paragraphs (≈300–500 words)  \n  - **Medium:** ~3–4 paragraphs (≈600–900 words)  \n  - **Long:** ~5–6+ paragraphs (≈1200+ words)  \n- Adjust depth, examples, and analysis according to the requested length.\n\n**Step 5: Academic & Writing Excellence Tips**  \n- **Clarity & Precision:** concise sentences, avoid ambiguity  \n- **Formal & Objective Tone:** evidence-based reasoning; no slang or personal opinions  \n- **Critical Analysis:** synthesize, compare, contrast literature  \n- **Consistency:** follow citation style meticulously  \n- **Focus:** narrow research question improves depth & credibility\n\n**Output Requirements:**  \n- Generate a ready-to-use article draft in the requested style (story-driven, academic, or formal).  \n- Include structured sections, clear headings, and references where applicable.  \n- If user requests Arabic, translate content accurately while preserving structure and style.  \n- Ensure high readability, engagement, and factual accuracy, using only trusted sources for all claims."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        448,
+        512
+      ],
+      "id": "e0fa8d3a-4eb1-47b5-b9fc-80d3697db4dc",
+      "name": "AI Agent2"
+    },
+    {
+      "parameters": {
+        "content": "AI Generate Academic",
+        "height": 464,
+        "width": 704,
+        "color": "#3B1237"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        224,
+        448
+      ],
+      "id": "7e499414-f61c-423f-ac70-fb7265725bf7",
+      "name": "Sticky Note9"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        576,
+        784
+      ],
+      "id": "6ed9fccc-42c9-4d7e-bcd8-b7cc3c00ace8",
+      "name": "Google Gemini Chat Model2",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "0Lm7Ug4YPt3g9SVu",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-120b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        464,
+        800
+      ],
+      "id": "7a9d61e2-cdac-4205-97e6-cd85d7551804",
+      "name": "Groq Chat Model4",
+      "credentials": {
+        "groqApi": {
+          "id": "jurehhDFzdy1HyZw",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"title\": \"\",\n  \"content\": \"\",\n  \"imageSearch\": \"\",\n  \"imagePrompt\": \"\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        704,
+        768
+      ],
+      "id": "198bc2de-e21e-4c90-a3df-b5d24f69845f",
+      "name": "Structured Output Parser2"
+    },
+    {
+      "parameters": {
+        "content": "Extract keywords -category - tone - length",
+        "width": 276
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1536,
+        -80
+      ],
+      "id": "9ff10536-08bc-4905-a0d9-38a1fc498012",
+      "name": "Sticky Note10"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse the JSON string returned in the \"text\" field\nconst llmOutput = $json[\"text\"]; // your LLM node field\nlet parsedOutput = [];\n\ntry {\n  parsedOutput = JSON.parse(llmOutput); // convert string to real JSON\n} catch (err) {\n  throw new Error(\"Failed to parse LLM JSON output: \" + err.message);\n}\n\nreturn parsedOutput.map(item => ({ json: item }));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -608,
+        400
+      ],
+      "id": "90718c00-8f64-42fc-b9aa-c51617dd3735",
+      "name": "Format Paramters"
+    },
+    {
+      "parameters": {
+        "content": "Type of article",
+        "height": 224,
+        "width": 160,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -336,
+        -128
+      ],
+      "id": "1c938ba8-8f86-44b7-87d0-d4a920fba384",
+      "name": "Sticky Note11"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6b011ce8-f185-4efe-9d14-7f67b8aa635a",
+              "name": "id",
+              "value": "={{ Date.now().toString() + Math.random().toString(36).substring(2,8) }}",
+              "type": "string"
+            },
+            {
+              "id": "6d408e3d-9459-43fd-90b0-1d09fa906e3b",
+              "name": "title",
+              "value": "={{ $json.title }}",
+              "type": "string"
+            },
+            {
+              "id": "de10e4ae-127b-4e5a-9327-23a768d71a9e",
+              "name": "content_text",
+              "value": "={{ $json.content }}",
+              "type": "string"
+            },
+            {
+              "id": "e2217050-7efa-4e26-8d6e-9711001c68b4",
+              "name": "keyword",
+              "value": "={{ $('If1').item.json.keyword }}",
+              "type": "string"
+            },
+            {
+              "id": "f8afb376-6ec5-4a5f-888d-cf32da99d44a",
+              "name": "language",
+              "value": "={{ $('Switch').item.json.language }}",
+              "type": "string"
+            },
+            {
+              "id": "7ec6194e-2659-4400-b428-ccb37d51ffbc",
+              "name": "length",
+              "value": "={{ $('Switch').item.json.length }}",
+              "type": "string"
+            },
+            {
+              "id": "e6b31559-241f-44be-a306-2cd0944fbce1",
+              "name": "is_public",
+              "value": true,
+              "type": "boolean"
+            },
+            {
+              "id": "4505f5f2-379b-4104-80ed-d2cbd87340a7",
+              "name": "Image",
+              "value": "={{ $json.data.resultJson }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3776,
+        -608
+      ],
+      "id": "7bd0708f-16f1-4350-b5c7-bec5bc3f01ad",
+      "name": "Edit Fields",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1qq8U330BmfcibX5fsR2V3Bl5SoMp3gWUnFmTxZ4UxQ4",
+          "mode": "list",
+          "cachedResultName": "ArticleMind",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1qq8U330BmfcibX5fsR2V3Bl5SoMp3gWUnFmTxZ4UxQ4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1FNvLqqfWvDQq3xWjEb1kS39iMTlHcbzxRwakabix57A/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $json.id }}",
+            "title": "={{ $json.title }}",
+            "content_text": "={{ $json.content_text }}",
+            "keyword": "={{ $json.keyword }}",
+            "language": "={{ $json.language }}",
+            "ImageURL": "={{ $json.Image }}",
+            "is_public": "={{ $json.is_public }}",
+            "word_count": "={{ $json.length }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "title",
+              "displayName": "title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "content_text",
+              "displayName": "content_text",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "keyword",
+              "displayName": "keyword",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "language",
+              "displayName": "language",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "word_count",
+              "displayName": "word_count",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "is_public",
+              "displayName": "is_public",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ImageURL",
+              "displayName": "ImageURL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        4160,
+        -608
+      ],
+      "id": "884455ad-650e-4f47-afc0-eee75738b8fb",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "HsAagcoTfkH0AAnG",
+          "name": "Google Sheets account 2"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "59b62085-f0f7-4920-954e-73a0f648c362",
+              "name": "id",
+              "value": "={{ $json.id }}",
+              "type": "string"
+            },
+            {
+              "id": "6d408e3d-9459-43fd-90b0-1d09fa906e3b",
+              "name": "title",
+              "value": "={{ $json.title }}",
+              "type": "string"
+            },
+            {
+              "id": "de10e4ae-127b-4e5a-9327-23a768d71a9e",
+              "name": "content_text",
+              "value": "={{ $('Edit Fields').item.json.content_text }}",
+              "type": "string"
+            },
+            {
+              "id": "e2217050-7efa-4e26-8d6e-9711001c68b4",
+              "name": "keyword",
+              "value": "={{ $('If1').item.json.keyword }}",
+              "type": "string"
+            },
+            {
+              "id": "f8afb376-6ec5-4a5f-888d-cf32da99d44a",
+              "name": "language",
+              "value": "={{ $('Switch').item.json.language }}",
+              "type": "string"
+            },
+            {
+              "id": "4505f5f2-379b-4104-80ed-d2cbd87340a7",
+              "name": "Image",
+              "value": "={{ $('Edit Fields').item.json.Image }}",
+              "type": "string"
+            },
+            {
+              "id": "7ec6194e-2659-4400-b428-ccb37d51ffbc",
+              "name": "length",
+              "value": "={{ $('Switch').item.json.length }}",
+              "type": "string"
+            },
+            {
+              "id": "e6b31559-241f-44be-a306-2cd0944fbce1",
+              "name": "is_public",
+              "value": true,
+              "type": "boolean"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        4352,
+        -608
+      ],
+      "id": "c4b0f60a-d996-4ad2-8487-3cbcacf251d7",
+      "name": "Edit Fields1",
+      "onError": "continueRegularOutput"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Validation3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Extract INFO",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Extract Enhance Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract INFO": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Enhance Prompt": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Basic LLM Chain1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain1": {
+      "main": [
+        [
+          {
+            "node": "Format Paramters",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validation3": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "ai_languageModel",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model4": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser2": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Extract INFO",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent2": {
+      "main": [
+        [
+          {
+            "node": "Extract INFO",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Paramters": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "880b73b5-a8f3-4f60-8b5c-97da69ebd76b",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "75b0a30c52ee895b1600b3c4e6911103a26e07da86ed60c0ff4a76c089a8432b"
+  },
+  "id": "txMv5Jm4NOM6xd8h",
+  "tags": []
+}

@@ -1,0 +1,633 @@
+{
+  "name": "news_ingestion",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "Every  30 m fetch_news to supabase",
+        "width": 1188,
+        "color": "#346559"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -2800,
+        -400
+      ],
+      "id": "d30fe0d7-913e-4e66-9fd8-15f13523fd1f",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 30
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -2752,
+        -368
+      ],
+      "id": "818f7aca-655a-4ddc-8a4d-67acb566c400",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT EXISTS (\n  SELECT 1 FROM public.news_articles WHERE original_url = $1\n) AS exists;",
+        "options": {
+          "queryReplacement": "={{$json.original_url}}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -656,
+        -576
+      ],
+      "id": "46a74269-f540-4e65-a460-7bd3bc60f08d",
+      "name": "Check Existing URL",
+      "credentials": {
+        "postgres": {
+          "id": "LuhaoTKBaJzS20is",
+          "name": "Supabase DB"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "d8e69216-0837-4880-ab59-b8b02f74dd26",
+              "leftValue": "={{ $json.exists }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        128,
+        -256
+      ],
+      "id": "17b2bc27-1975-4f26-a3d7-7eea7bdfd79b",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "model": "allam-2-7b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        -1424,
+        -720
+      ],
+      "id": "304642a4-e96e-438f-895b-ec316d957f94",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "jurehhDFzdy1HyZw",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -1328,
+        -720
+      ],
+      "id": "ab27ab7b-a843-4a6b-a232-c4ca54f2b765",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "0Lm7Ug4YPt3g9SVu",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://newsapi.org/v2/everything?q=tesla&from=2026-03-05&sortBy=publishedAt&pageSize=10&language=en&apiKey=7947b7c1b67047d2b6abe6ae10a405c7                         ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -2336,
+        -368
+      ],
+      "id": "9cdfa9cd-a48c-483e-bc15-cfdc0b40b187",
+      "name": "Get_news",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const articles = $json.articles || [];\n\n// 🔹 Limit results (control load)\nconst limited = articles.slice(0, 10);\n\n// 🔹 Filter + validate\nconst clean = limited.filter(a => {\n  if (!a.url || !a.title || a.title.length < 10) return false;\n\n  const text = (a.title || \"\") + \" \" + (a.description || \"\");\n\n  // Detect languages manually\n  const isEnglish = /[a-zA-Z]/.test(text);\n  const isArabic = /[\\u0600-\\u06FF]/.test(text);\n\n  return isEnglish || isArabic;\n});\n\n// 🔹 Handle empty result safely\nif (!clean.length) {\n  return [{\n    json: {\n      error: \"No valid EN/AR articles\",\n      debug_count: articles.length\n    }\n  }];\n}\n\n// 🔹 Map to your structure\nreturn clean.map(a => {\n  const text = (a.title || \"\") + \" \" + (a.description || \"\");\n\n  const language =\n    /[\\u0600-\\u06FF]/.test(text) ? \"arabic\" :\n    /[a-zA-Z]/.test(text) ? \"english\" :\n    \"unknown\";\n\n  return {\n    json: {\n      title: a.title,\n      original_url: a.url,\n      source_name: a.source?.name || \"unknown\",\n      puplished_at: a.publishedAt || new Date().toISOString(),\n      description: a.description || \"\",\n      content_preview: a.content || \"\",\n      language\n    }\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2048,
+        -368
+      ],
+      "id": "3804c69f-ea1d-43c6-b3a5-45b713f21655",
+      "name": "Filter_data"
+    },
+    {
+      "parameters": {
+        "content": "ectract clean data from request",
+        "width": 294,
+        "color": "#346559"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -2064,
+        -400
+      ],
+      "id": "5e609aab-b586-4b47-8d13-2eded377c40c",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "Get news from newsapi",
+        "width": 294,
+        "color": "#346559"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -2416,
+        -400
+      ],
+      "id": "5407b2bc-138f-44da-9aca-8d4fcd52f676",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "Basic AI classifier by category",
+        "width": 560,
+        "color": "#363535"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1456,
+        -944
+      ],
+      "id": "c37b8249-17a8-4f2e-97cf-bb122079a191",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=title: {{ $json.title }}\ncategory:\noriginal_url : {{ $json.original_url }}\nsource_name: {{ $json.source_name }}\npuplished_at: {{ $json.puplished_at }}\ndescription: {{ $json.description }}\ncontent_preview: {{ $json.content_preview }}\nlanguage: {{ $json.language }}\n",
+        "needsFallback": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=You are a news classifier. Your task is to read the article's title and description and determine the most appropriate category. \n\nAvailable categories: Technology, Business, Health, Sports, Entertainment, Science, Politics.\n\nAlways respond with a single word for the category (from the list) without extra explanation."
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        -1424,
+        -896
+      ],
+      "id": "af2833c9-b0ef-4170-8a50-24c791b559df",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Use $items() to get all items from the previous node\nreturn $items().map(item => {\n    return {\n        json: {\n            category: item.json.text || \"General\"\n        }\n    };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1104,
+        -912
+      ],
+      "id": "55a1e983-956b-4497-86c0-7509e19ec8a2",
+      "name": "format_output"
+    },
+    {
+      "parameters": {
+        "content": "extract Category ",
+        "width": 150,
+        "color": "#363535"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1120,
+        -944
+      ],
+      "id": "01870967-5d9f-4ac9-b236-ed09f9054e88",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "Check Dublicate news"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -720,
+        -608
+      ],
+      "id": "e8e6c7ed-d47c-4175-953f-b87878c42483",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -1072,
+        -384
+      ],
+      "id": "dc4a77d0-0b76-4edb-a215-904c4576694b",
+      "name": "Merge-newsDetailes-and-category"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -256,
+        -400
+      ],
+      "id": "038eb6bf-0ef6-4aca-bcb9-206015e150a9",
+      "name": "Merge-Nwes-And-not duplicateNews"
+    },
+    {
+      "parameters": {
+        "content": "Ensure only not duplicate news pass",
+        "width": 208,
+        "color": "#444141"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        64,
+        -304
+      ],
+      "id": "301ced32-1e6e-49d8-bcee-2810df8354e6",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "news_articles",
+          "mode": "list",
+          "cachedResultName": "news_articles"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "title": "={{ $json.title }}",
+            "original_url": "={{ $json.original_url }}",
+            "source_name": "={{ $json.source_name }}",
+            "full_content": "={{ $json.content_preview }}",
+            "language": "={{ $json.language }}",
+            "published_at": "={{ $json.puplished_at }}",
+            "category": "={{ $json.category }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "title",
+              "displayName": "title",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "original_url",
+              "displayName": "original_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "source_name",
+              "displayName": "source_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "category",
+              "displayName": "category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "summary",
+              "displayName": "summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "full_content",
+              "displayName": "full_content",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "recommendation",
+              "displayName": "recommendation",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "object",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "published_at",
+              "displayName": "published_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "fetched_at",
+              "displayName": "fetched_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "language",
+              "displayName": "language",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        448,
+        -272
+      ],
+      "id": "5b7ad7f2-fb7a-4cb4-b16d-90be0c00d283",
+      "name": "Insert rows in a table4",
+      "credentials": {
+        "postgres": {
+          "id": "LuhaoTKBaJzS20is",
+          "name": "Supabase DB"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "**Insert data(News)  automatically every 30 minutes to DB**\n\n",
+        "width": 848
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -2976,
+        -1424
+      ],
+      "id": "a6c93bb5-a294-4e2c-84a6-d3144b953c2f",
+      "name": "Sticky Note7"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get_news",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Existing URL": {
+      "main": [
+        [
+          {
+            "node": "Merge-Nwes-And-not duplicateNews",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Insert rows in a table4",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Get_news": {
+      "main": [
+        [
+          {
+            "node": "Filter_data",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Filter_data": {
+      "main": [
+        [
+          {
+            "node": "Merge-newsDetailes-and-category",
+            "type": "main",
+            "index": 1
+          },
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "format_output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "format_output": {
+      "main": [
+        [
+          {
+            "node": "Merge-newsDetailes-and-category",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge-newsDetailes-and-category": {
+      "main": [
+        [
+          {
+            "node": "Check Existing URL",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge-Nwes-And-not duplicateNews",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge-Nwes-And-not duplicateNews": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert rows in a table4": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "0f243f41-7738-4a5a-af05-b4a564d3057f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "75b0a30c52ee895b1600b3c4e6911103a26e07da86ed60c0ff4a76c089a8432b"
+  },
+  "id": "FVL78c7GFVVJIEnm",
+  "tags": []
+}

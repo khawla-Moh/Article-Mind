@@ -1,0 +1,102 @@
+{
+  "nav": {
+    "home": "الرئيسية",
+    "news": "الأخبار",
+    "articleGenerator": "مولّد المقالات",
+    "brand": "ديب ريد"
+  },
+  "home": {
+    "heroTitle": "ذكاء إخباري مدعوم بالذكاء الاصطناعي",
+    "heroSubtitle": "حلّل، أنشئ، وافهم المقالات باستخدام أحدث تقنيات الذكاء الاصطناعي",
+    "ctaNews": "استكشف الأخبار",
+    "ctaGenerate": "إنشاء مقال",
+    "featureAnalysis": "تحليل ذكي",
+    "featureAnalysisDesc": "تقييم المصداقية وتحليل المحتوى مدعوم بالذكاء الاصطناعي لكل مقال",
+    "featureGenerate": "توليد المقالات",
+    "featureGenerateDesc": "أنشئ مقالات عالية الجودة من الكلمات المفتاحية أو الفئات باستخدام الذكاء الاصطناعي",
+    "featureBrain": "تنشيط الدماغ",
+    "featureBrainDesc": "شحذ تفكيرك النقدي مع أسئلة تحليلية مولّدة بالذكاء الاصطناعي"
+  },
+  "news": {
+    "title": "آخر الأخبار",
+    "subtitle": "ابقَ مطّلعاً مع الأخبار المحللة بالذكاء الاصطناعي من مصادر موثوقة",
+    "allCategories": "الكل",
+    "categoryTech": "تكنولوجيا",
+    "categorySport": "رياضة",
+    "categoryBusiness": "أعمال",
+    "categoryHealth": "صحة",
+    "categoryScience": "علوم",
+    "categoryPolitics": "سياسة",
+    "timePeriod": "الفترة الزمنية",
+    "last24h": "آخر 24 ساعة",
+    "lastWeek": "الأسبوع الماضي",
+    "lastMonth": "الشهر الماضي",
+    "readMore": "اقرأ المزيد",
+    "noResults": "لم يتم العثور على أخبار لهذا الفلتر.",
+    "source": "المصدر",
+    "publishedAt": "تاريخ النشر"
+  },
+  "newsDetail": {
+    "backToNews": "العودة للأخبار",
+    "analyticalRecommendation": "التوصية التحليلية",
+    "credibility": "درجة المصداقية",
+    "summary": "ملخص الذكاء الاصطناعي",
+    "fullArticle": "المقال الكامل",
+    "relatedNews": "أخبار ذات صلة"
+  },
+  "articleGenerator": {
+    "title": "مولّد المقالات بالذكاء الاصطناعي",
+    "subtitle": "أنشئ مقالات احترافية مدعومة بالذكاء الاصطناعي",
+    "tabKeyword": "بالكلمات المفتاحية",
+    "tabCategory": "بالفئة",
+    "keywordLabel": "أدخل الكلمات المفتاحية",
+    "keywordPlaceholder": "مثال: ذكاء اصطناعي، تعلم آلي...",
+    "categoryLabel": "اختر الفئة",
+    "toneLabel": "نبرة الكتابة",
+    "toneFormal": "رسمي",
+    "toneCasual": "عادي",
+    "toneAcademic": "أكاديمي",
+    "lengthLabel": "طول المقال",
+    "lengthShort": "قصير",
+    "lengthMedium": "متوسط",
+    "lengthLong": "طويل",
+    "generate": "إنشاء المقال",
+    "generating": "جاري الإنشاء...",
+    "resultTitle": "المقال المُنشأ",
+    "download": "تحميل PDF",
+    "brainActivation": "تنشيط الدماغ",
+    "regenerate": "إعادة الإنشاء",
+    "saveArticle": "حفظ المقال"
+  },
+  "articleDetail": {
+    "backToArticles": "رجوع",
+    "download": "تحميل PDF",
+    "brainActivation": "تنشيط الدماغ",
+    "generatedBy": "مُنشأ بالذكاء الاصطناعي",
+    "generatedOn": "تاريخ الإنشاء"
+  },
+  "brain": {
+    "title": "تمرين تنشيط الدماغ",
+    "subtitle": "عزّز تفكيرك النقدي مع هذه الأسئلة التحليلية",
+    "question": "سؤال",
+    "yourAnswer": "اكتب تحليلك هنا...",
+    "showAnswer": "عرض الإجابة المقترحة",
+    "hideAnswer": "إخفاء الإجابة",
+    "suggestedAnswer": "الإجابة المقترحة",
+    "backToArticle": "العودة للمقال",
+    "completed": "تم إكمال التمرين!",
+    "completedMsg": "عمل رائع! لقد أجبت على جميع الأسئلة."
+  },
+  "footer": {
+    "description": "منصة ذكاء إخباري وتوليد مقالات مدعومة بالذكاء الاصطناعي",
+    "rights": "جميع الحقوق محفوظة",
+    "quickLinks": "روابط سريعة",
+    "contact": "تواصل معنا"
+  },
+  "common": {
+    "loading": "جاري التحميل...",
+    "error": "حدث خطأ",
+    "retry": "إعادة المحاولة",
+    "switchLang": "English"
+  }
+}

@@ -1,0 +1,182 @@
+{
+  "name": "Analyze News",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "news",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -1312,
+        -96
+      ],
+      "id": "f23a4e98-1121-415e-8df3-422a8b4c5fac",
+      "name": "Webhook",
+      "webhookId": "898f9860-65e4-4ab6-a1a9-8b04e0635682"
+    },
+    {
+      "parameters": {
+        "content": "Get News From Frontend"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1360,
+        -128
+      ],
+      "id": "27093305-aa69-48e4-8876-a8176d2fc0e7",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Step 1: Safely get incoming data\nconst input = $input.first().json || $input.first().json.body || {};\n\n// Step 2: Extract fields with fallback\nconst title = input.title?.trim() || \"\";\nconst content = input.content?.trim() || \"\";\nconst category = input.category?.trim() || \"general\";\nconst lang = input.lang?.trim() || \"en\";\n\n// Step 3: Validate required fields\nif (!title || !content) {\n  return [{\n    json: {\n      success: false,\n      error: \"Missing title or content\",\n      rawInput: input\n    }\n  }];\n}\n\n// Step 4: Pass to next node\nreturn [{\n  json: {\n    title,\n    content,\n    category,\n    lang\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1024,
+        -96
+      ],
+      "id": "19d51fbf-00f6-4b19-b355-5001654bcdea",
+      "name": "parse in coming data"
+    },
+    {
+      "parameters": {
+        "content": "Summarize And Generate Recommendation",
+        "width": 320
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -832,
+        -144
+      ],
+      "id": "b6b78bdd-794c-4820-bf7c-e0985e60726f",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Analyze the following article:\n\nTitle: {{ $json.rawInput.body.title }}\nContent: {{ $json.rawInput.body.content }}\nCategory: {{ $json.rawInput.body.category }}\n\nSource Language: {{ $json.rawInput.body.sourceLanguage }}\nTarget Language: {{ $json.rawInput.body.targetLanguage }}\n\nIMPORTANT:\n- Output MUST be in target language.",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=You are a highly experienced global news analyst.\n\nLANGUAGE RULE (CRITICAL):\n- The article is written in the source language.\n- You MUST generate the output in the target language.\n- If sourceLanguage ≠ targetLanguage → translate + analyze.\n- Do NOT mix languages.\n\nTASKS:\n1. Understand the article (in source language)\n2. Summarize it\n3. Generate recommendation\n4. Explain reasoning\n5. Output in target language\n\nALWAYS include:\n- English: \"This recommendation is based on statistical trends and expert analysis.\"\n\n\nbut if {{ $json.rawInput.body.targetLanguage }} is 'ar'\n- Arabic: \"هذا التوصية مبنية على الاتجاهات الإحصائية وآراء الخبراء.\"\n\nOUTPUT FORMAT (STRICT JSON):\n{\n  \"summary\": \"\",\n  \"recommendation\": \"\",\n  \"reasoning\": \"\",\n  \"credibility\": 0\n}"
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        -784,
+        -96
+      ],
+      "id": "6260b9eb-4023-4b89-8c5d-d684de187451",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get raw LLM output\nconst text = $input.first().json.text || $input.first().json.output || \"\";\n\n// Clean formatting\nlet cleaned = text.trim();\ncleaned = cleaned.replace(/```json/g, '').replace(/```/g, '');\n\n// Parse JSON safely\nlet parsed;\ntry {\n  parsed = JSON.parse(cleaned);\n} catch (err) {\n  return [{\n    json: {\n      success: false,\n      error: \"JSON parse failed\",\n      raw: cleaned\n    }\n  }];\n}\n\n// Flatten for frontend + include language info\nreturn [{\n  json: {\n    success: true,\n    lang: $input.first().json.lang || 'en',\n    summary: parsed.summary,\n    recommendation: parsed.recommendation,\n    reasoning: parsed.reasoning,\n    credibility: parsed.credibility || 0\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -384,
+        -96
+      ],
+      "id": "4ee3c13b-0886-4b3d-970b-ac865682a52c",
+      "name": "Parsing Output"
+    },
+    {
+      "parameters": {
+        "model": "allam-2-7b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        -896,
+        112
+      ],
+      "id": "dbf58eb5-4020-4173-ab1b-055eaeb91ca8",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "jurehhDFzdy1HyZw",
+          "name": "Groq account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "parse in coming data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "parse in coming data": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Parsing Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parsing Output": {
+      "main": [
+        []
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "8e2e4ad3-f7e3-4692-b775-8766f67e8742",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "75b0a30c52ee895b1600b3c4e6911103a26e07da86ed60c0ff4a76c089a8432b"
+  },
+  "id": "8p4zxSqkxzbUvdIK",
+  "tags": []
+}

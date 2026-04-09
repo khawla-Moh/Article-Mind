@@ -1,0 +1,202 @@
+{
+  "name": "Interactive AI Chat",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "brain-chat",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "273a0e75-ee3f-4614-bd17-32aa2273f0e0",
+      "name": "Webhook",
+      "webhookId": "acd42e93-d826-4327-917e-3ed4d25d1646"
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $json.body || {};\n\n// extract real scenario text\nconst scenarioText =\n  input.scenario?.brain?.scenario || \"No scenario provided\";\n\nreturn {\n  scenario: scenarioText,\n  history: input.history || [],\n  userAnswer: input.userAnswer || \"\",\n  userId: input.userId || \"anonymous\",\n  scenarioId: input.articleId || \"default\"\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        208,
+        0
+      ],
+      "id": "616ef8b0-a425-4797-87b2-53f22ac58f94",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=SCENARIO:{{ $json.scenario }}\nUSER THINKING:{{ $json.userAnswer }} \nCONVERSATION: {{ $json.history }}\nTASK:\n1. Give short feedback: One strength, One gap, One bias (if exists)\n2. Ask 1–2 follow-up questions\nOUTPUT (JSON ONLY):\n{\n  \"reply\": \"text\",\n  \"questions\": [\"q1\", \"q2\"]\n}\n\n\n\n\n",
+        "needsFallback": true,
+        "options": {
+          "systemMessage": "=You are an elite cognitive training coach.\n\nYour goal is to activate deep thinking, not ask basic questions.\n\nYou create challenging, creative, and slightly uncomfortable exercises that force the user to think critically.\n\nRules:\n- Do NOT ask generic questions\n- Avoid obvious or boring prompts\n- Use scenarios, reframing, contradictions, and mental models\n- Make the user THINK, not answer quickly\nIf the user writes in Arabic:\n- Respond in fluent, natural Arabic\n- Avoid literal translation\n- Use clear, modern Arabic (not robotic or overly formal)\n- Keep tone intelligent and human\n\nIf needed, rephrase ideas to sound natural in Arabic, not translated.\nFlow:\n- If no answer: give a short, engaging exercise for the current phase\n- If user answered:\n  → Analyze their thinking (strength, gap, bias)\n  → Challenge them\n  → Then move to the next phase with a NEW exercise\n\nFinal Phase:\n- Provide a full evaluation:\n  - Thinking strengths\n  - Blind spots\n  - Patterns across answers\n\nStyle:\n- Sharp\n- Thought-provoking\n- Human-like\n- Never robotic",
+          "enableStreaming": true
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        416,
+        0
+      ],
+      "id": "5fe9e204-5106-4100-8d43-1204086f2a46",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Webhook').item.json.webhookUrl }}",
+        "contextWindowLength": 8
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        528,
+        176
+      ],
+      "id": "3f686e08-26be-4feb-b68e-612a036e9863",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-120b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        288,
+        208
+      ],
+      "id": "c2392681-75fd-4a97-ae74-18fb93f19061",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "jurehhDFzdy1HyZw",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        368,
+        304
+      ],
+      "id": "a8203739-4a92-4063-9259-06d35a0df64b",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "0Lm7Ug4YPt3g9SVu",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "let text = $json.output || \"\";\n\n// تنظيف النص\ntext = text.replace(/```json/g, '').replace(/```/g, '').trim();\n\n// استخراج JSON\nconst match = text.match(/\\{[\\s\\S]*\\}/);\n\nlet data;\n\ntry {\n  data = JSON.parse(match[0]);\n} catch (e) {\n  data = {\n    reply: \"AI response parsing failed. Try again.\",\n    questions: []\n  };\n}\n\nreturn {\n  reply: data.reply || \"No reply\",\n  questions: data.questions || []\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        768,
+        0
+      ],
+      "id": "08f5294e-d1bc-4f78-8408-9da5bc0a3725",
+      "name": "Code in JavaScript1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "00143c81-8e47-4b6c-bec8-0506a923b431",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "75b0a30c52ee895b1600b3c4e6911103a26e07da86ed60c0ff4a76c089a8432b"
+  },
+  "id": "g0ykAqM70pruy1nl",
+  "tags": []
+}

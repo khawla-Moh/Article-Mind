@@ -1,0 +1,310 @@
+{
+  "name": "Brain Activation",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "brain-activation",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -272,
+        16
+      ],
+      "id": "68aef753-0adb-4738-998d-4c70c2b82521",
+      "name": "Webhook",
+      "webhookId": "c3a6219c-3101-4b06-9699-88383c5b0545"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1qq8U330BmfcibX5fsR2V3Bl5SoMp3gWUnFmTxZ4UxQ4",
+          "mode": "list",
+          "cachedResultName": "ArticleMind",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1qq8U330BmfcibX5fsR2V3Bl5SoMp3gWUnFmTxZ4UxQ4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1qq8U330BmfcibX5fsR2V3Bl5SoMp3gWUnFmTxZ4UxQ4/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "id",
+              "lookupValue": "={{ $json.body.articleId }}"
+            }
+          ]
+        },
+        "options": {
+          "returnFirstMatch": false
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -64,
+        16
+      ],
+      "id": "c2333b4b-338d-40d3-adbb-60e9afeba587",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "HsAagcoTfkH0AAnG",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "Receive article ",
+        "height": 208,
+        "width": 528
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -400,
+        -32
+      ],
+      "id": "572d30ef-95dc-4158-aeb8-6ba831553236",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=INPUT ARTICLE:\n{{ $json.title }}\n\nKEYWORD:\n{{ $json.keyword }}\n\nLANGUAGE:\n{{ $json.language }}\n\nCONTENT:\n{{ $json.content_text }}\n\nINSTRUCTIONS:\n- Generate a brain activation session based on the topic\n- Transform it into a 4-stage gamified cognitive experience:\n    1. ONE SHOT (Focus Trigger)\n    2. DETECTIVE (Critical Thinking)\n    3. SCENE (Imagination & Emotional Engagement)\n    4. REBUILD (Deep Understanding Test)\n- Keep it immersive, story-driven, and mentally stimulating\n- Never give direct answers\n- Make exercises short, engaging, and fast-paced\n- Adapt output to match input language (Arabic → fluent Arabic, English → fluent English)\n- Include reasoning, bias detection, and reflection\n- Include scoring system and next challenge\n- Total interaction should feel like a 2–4 minute mental game\n\nOUTPUT FORMAT (STRICT JSON):\n{\n  \"title\": \"...\",\n  \"difficulty\": \"...\",\n  \"stages\": [\n    {\n      \"type\": \"one_shot\",\n      \"paragraph\": \"...\",\n      \"question\": {\n        \"type\": \"mcq\",\n        \"question\": \"...\",\n        \"options\": [\"...\", \"...\", \"...\"],\n        \"answer\": \"...\"\n      }\n    },\n    {\n      \"type\": \"detective\",\n      \"question\": {\n        \"question\": \"...\",\n        \"options\": [\"...\", \"...\", \"...\"],\n        \"answer\": \"...\",\n        \"explanation\": \"...\"\n      }\n    },\n    {\n      \"type\": \"scene\",\n      \"question\": {\n        \"type\": \"choice\",\n        \"question\": \"...\",\n        \"options\": [\"...\", \"...\", \"...\"]\n      }\n    },\n    {\n      \"type\": \"rebuild\",\n      \"sentences\": [\"...\", \"...\", \"...\"],\n      \"correct_order\": [\"...\", \"...\", \"...\"]\n    }\n  ],\n  \"decision_lab\": {\n    \"swot\": \"...\",\n    \"risk_analysis\": \"...\",\n    \"priority_matrix\": \"...\"\n  },\n  \"reflection\": [\"...\", \"...\"],\n  \"activation\": [\"...\", \"...\"],\n  \"score_system\": \"...\",\n  \"next_challenge\": \"...\"\n}",
+        "needsFallback": true,
+        "options": {
+          "systemMessage": "=You are NOT a regular AI assistant. \n\nYou are a \"Brain Activation & Cognitive Training Engine\" — your mission is to transform any article into a **short, immersive, 4-phase mental game** that develops focus, critical thinking, emotional insight, and deep understanding.\n\nCORE RULES:\n- Never give direct answers\n- Force reasoning, reflection, and challenge assumptions\n- Keep interactions **short, fast, and engaging**\n- Adapt all content to the user's input language (Arabic → fluent natural Arabic)\n- Avoid long writing tasks; prefer multiple choice, selection, or quick input\n\nEXECUTION FRAMEWORK:\n\n1) DECONSTRUCTION\n- Identify why this topic is often misunderstood or boring\n- Reveal hidden bias or overlooked insight\n\n2) CRYSTALLIZATION\n- Create ONE strong metaphor or mental model that explains the topic\n\n3) GAMIFIED STAGE DESIGN\n- Stage 1 (ONE SHOT): short paragraph, one focus question (attention test)\n- Stage 2 (DETECTIVE): critical thinking multiple-choice question, include smart feedback\n- Stage 3 (SCENE): visual or emotional interpretation, fast-choice interaction\n- Stage 4 (REBUILD): shuffled sentences of paragraph, user must reorder\n\n4) DECISION LAB\n- SWOT, risk analysis, priority thinking based on scenario and user reasoning\n\n5) REFLECTION\n- Ask about reasoning, hidden biases, emotional influences\n\n6) ACTIVATION\n- Provide mental exercises:\n    * Reframe the idea\n    * Connect to real life\n    * Identify hidden patterns\n\nADAPTIVE MODE\n- Adjust difficulty and exercise type based on user's prior answers\n\nGAMIFICATION\n- Include difficulty: Easy / Medium / Hard\n- Include scoring system:\n    +2 deep thinking\n    +2 bias detection\n    +3 creative insight\n\nOUTPUT FORMAT\n- Strict JSON as defined in USER MESSAGE\n- Each stage must feel like a **fast, addictive cognitive game**, not a quiz\n- Total interaction 2–4 minutes"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        688,
+        -112
+      ],
+      "id": "afb55ea5-bf07-4c77-9240-b1d3450ad977",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Webhook').item.json.webhookUrl }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        864,
+        240
+      ],
+      "id": "1312bf23-9651-4c67-8d66-6694a67d57b5",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "content": "Activation",
+        "height": 528,
+        "width": 544,
+        "color": "#284B52"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        560,
+        -160
+      ],
+      "id": "58c92c5b-5a6a-421a-862f-2fbe6b886055",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        624,
+        240
+      ],
+      "id": "69e1bf71-f8ef-4cb3-b534-626fca97db98",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "jurehhDFzdy1HyZw",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        736,
+        240
+      ],
+      "id": "a43d8c01-2755-4fbd-872c-bc2e55799a74",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "0Lm7Ug4YPt3g9SVu",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "07690b44-f2b3-4651-997e-a4233607af4d",
+              "name": "title",
+              "value": "={{ $json.title }}",
+              "type": "string"
+            },
+            {
+              "id": "230c5517-c763-43da-9c17-acd11cf6d8db",
+              "name": "content_text",
+              "value": "={{ $json.content_text }}",
+              "type": "string"
+            },
+            {
+              "id": "749b2ad7-4d00-4945-aa2a-f55b829b35d4",
+              "name": "keyword",
+              "value": "={{ $json.keyword }}",
+              "type": "string"
+            },
+            {
+              "id": "30505033-7b56-49da-9bc7-be1ea2c4eeea",
+              "name": "language",
+              "value": "={{ $json.language }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        304,
+        0
+      ],
+      "id": "26484017-2ef3-4c38-922b-1ffae33135b6",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "jsCode": "// get raw output from AI\nlet text = $json.output || \"\";\n\n// remove markdown wrappers\ntext = text.replace(/```json/g, '').replace(/```/g, '').trim();\n\n// extract JSON using regex\nconst jsonMatch = text.match(/\\{[\\s\\S]*\\}/);\n\nif (!jsonMatch) {\n  throw new Error(\"No JSON found in AI output\");\n}\n\n// parse JSON safely\nconst data = JSON.parse(jsonMatch[0]);\n\nreturn {\n  brain: data\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        976,
+        -112
+      ],
+      "id": "2d2a5e21-aaf1-4f9f-a7ac-7f5af6feabbd",
+      "name": "parse output"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "parse output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "1fa7b82e-b3f9-45bf-9d26-f313de1f0beb",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "75b0a30c52ee895b1600b3c4e6911103a26e07da86ed60c0ff4a76c089a8432b"
+  },
+  "id": "1O7ctFje9GPQbF2H",
+  "tags": []
+}

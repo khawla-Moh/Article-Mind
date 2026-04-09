@@ -1,0 +1,86 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+Arabic:wght@300;400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-beige-50 text-brown-800 font-sans;
+  }
+
+  [dir="rtl"] body {
+    @apply font-arabic;
+  }
+
+  ::selection {
+    @apply bg-brown-500/30 text-brown-900;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-brown-600 to-brown-500 text-white font-semibold rounded-xl shadow-lg shadow-brown-500/25 hover:shadow-xl hover:shadow-brown-500/30 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 bg-white/80 backdrop-blur-sm text-brown-700 font-semibold rounded-xl border-2 border-brown-200 hover:border-brown-400 hover:bg-white hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300;
+  }
+
+  .card {
+    @apply bg-white/80 backdrop-blur-sm rounded-2xl border border-brown-100/50 shadow-sm hover:shadow-lg hover:shadow-brown-500/10 transition-all duration-300;
+  }
+
+  .glass {
+    @apply bg-white/60 backdrop-blur-xl border border-white/20 shadow-xl;
+  }
+
+  .page-container {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  @apply bg-beige-100;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-brown-300 rounded-full;
+}
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-brown-400;
+}
+
+/* Route transitions */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.fade-enter-from {
+  opacity: 0;
+  transform: translateY(10px);
+}
+.fade-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+/* Skeleton animation */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, #f0ebe3 25%, #e8e0d4 50%, #f0ebe3 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
