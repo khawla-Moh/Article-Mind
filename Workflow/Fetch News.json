@@ -39,11 +39,11 @@
           "parameters": [
             {
               "name": "apikey",
-              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhncmJubm5mdmh3YXVodGxxeXZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NTM2NDEsImV4cCI6MjA4OTQyOTY0MX0.TcxtabI6r7f7vh13atvfuEFgZlrmvuc0XvJtEjJRjQw"
+              "value": "Your api key"
             },
             {
               "name": "Authorization",
-              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhncmJubm5mdmh3YXVodGxxeXZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NTM2NDEsImV4cCI6MjA4OTQyOTY0MX0.TcxtabI6r7f7vh13atvfuEFgZlrmvuc0XvJtEjJRjQw"
+              "value": "Bearer YOUR_API_KEY"
             },
             {
               "name": "Content-Type",
